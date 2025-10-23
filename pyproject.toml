@@ -1,0 +1,11 @@
+[project]
+name = "support-chatbot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.119.1",
+    "langchain>=1.0.2",
+    "langgraph>=1.0.1",
+]
