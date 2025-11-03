@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from core.services.bot.hugging_face import ChatBot
+from core.services.bot.agents import chat_agent
 from models.chat import ChatRequest
 
 blueprint_name = "chat"
@@ -12,14 +12,7 @@ router = APIRouter(
 )
 
 
-bot = ChatBot(
-    name="SupportChatBot",
-    definition_prompt="You are a helpful customer support assistant.",
-    model="meta-llama/Llama-3.2-1B",
-)
-
-
 @router.post("/chat")
 async def chat_endpoint(data: ChatRequest):
-    response = bot.task(data.message)
+    response = chat_agent.invoke({"messages": data.message})
     return {"response": response}

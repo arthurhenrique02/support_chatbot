@@ -1,16 +1,20 @@
+import os
+
+from langchain.tools import tool
+from langchain_core.output_parsers import StrOutputParser
 from langchain_huggingface import ChatHuggingFace, HuggingFacePipeline
+from transformers import AutoTokenizer
 
 from core.services.bot.generics import GenericBot
 
 
 class ChatBot(GenericBot):
-    def __init__(self, name: str, definition_prompt: str, model: str):
+    def __init__(self, name: str, definition_prompt: str, model: str, setup_kwargs={}):
         super().__init__(name, definition_prompt, model)
-        self.setup_llm()
+        self.setup_llm(**setup_kwargs)
 
     def setup_llm(
         self,
-        *args,
         **kwargs,
     ) -> None:
         temperature = None
@@ -35,8 +39,15 @@ class ChatBot(GenericBot):
             },
         )
 
-        self.llm = ChatHuggingFace(llm=model)
+        self.llm = ChatHuggingFace(
+            llm=model,
+            tokenizer=AutoTokenizer.from_pretrained(os.getenv("TOKENIZER_MODEL")),
+        )
 
+    @tool
     def task(self, prompt: str) -> str:
+        """
+        From a given prompt, return the answer as a text prompt. Cleaned up with just the repsonde.
+        """
         response = self.llm.invoke(prompt)
-        return response
+        return response | StrOutputParser()
