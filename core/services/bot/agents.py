@@ -1,20 +1,21 @@
 import os
 
 from langchain.agents import create_agent
-
-from core.services.bot.hugging_face import ChatBot
-
-bot = ChatBot(
-    name="SupportChatBot",
-    definition_prompt="You are a helpful customer support assistant.",
-    model=os.getenv("CHAT_BOT_MODEL"),
-    setup_kwargs={
-        "temperature": 0,
-        "max_new_tokens": 500,
-        "task": "text-generation",
-    },
-)
+from langchain_huggingface import ChatHuggingFace, HuggingFacePipeline
 
 chat_agent = create_agent(
-    model=bot.llm, system_prompt=bot.definition_prompt, tools=[bot.task]
+    model=ChatHuggingFace(
+        llm=HuggingFacePipeline.from_model_id(
+            name="Chat Support Agent",
+            model_id=os.getenv("CHAT_BOT_MODEL"),
+            device_map="cuda:0",
+            task="text-generation",
+            pipeline_kwargs={
+                "max_new_tokens": 512,
+                "return_full_text": False,
+                "temperature": 0.2,
+            },
+        ),
+    ),
+    system_prompt="You are a helpful customer support agent, responsible to assist users with their inquiries regarding our products and services. Provide clear and concise answers, and ensure a positive user experience.",
 )
