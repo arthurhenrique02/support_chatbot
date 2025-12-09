@@ -3,6 +3,25 @@ import os
 from langchain.agents import create_agent
 from langchain_huggingface import ChatHuggingFace, HuggingFacePipeline
 
+# TODO CREATE AGENT IN A TOOL CALLING WAY
+
+orchestrator_agent = create_agent(
+    model=ChatHuggingFace(
+        llm=HuggingFacePipeline.from_model_id(
+            name="Orchestrator Agent",
+            model_id=os.getenv("ORCHESTRATOR_MODEL"),
+            device_map="cuda:0",
+            task="text-generation",
+            pipeline_kwargs={
+                "max_new_tokens": 512,
+                "return_full_text": False,
+                "temperature": 0.2,
+            },
+        ),
+    ),
+    system_prompt="...",
+)
+
 chat_agent = create_agent(
     model=ChatHuggingFace(
         llm=HuggingFacePipeline.from_model_id(
